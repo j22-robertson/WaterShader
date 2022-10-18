@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: WaterMaterial
-  m_Shader: {fileID: 4800000, guid: 13925d43275bfe849b207020cb9dc089, type: 3}
+  m_Name: Waves
+  m_Shader: {fileID: 4800000, guid: d01292f009cb87c44a9732b3746d1f47, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -23,20 +23,17 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _FlowMap:
-        m_Texture: {fileID: 2800000, guid: d9de9c6d9f881d14685f351e2f32760d, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: f29c5b3e56001bd45bc3e6ae43377181, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Amplitude: 0.5
     - _Glossiness: 0.5
     - _Metallic: 0
-    - _UJump: 0.25
-    - _VJump: 0.25
+    - _Speed: 0.5
+    - _WaveLength: 0.5
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.27153787, g: 0.6089176, b: 0.764151, a: 1}
   m_BuildTextureStacks: []
