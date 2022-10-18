@@ -57,8 +57,19 @@ Shader "Custom/GerstnerWaveShader"
             p.x += d.x*(a*cos(f));
             p.y = a * sin(f);
             p.z += d.y * (a * cos(f));
-            float3 tangent = normalize(float3(1-_Steepness * sin(f), _Steepness * cos(f), 0));
-            float3 normal = float3(-tangent.y, tangent.x, 0);
+            //float3 tangent = normalize(float3(1-_Steepness * sin(f), _Steepness * cos(f), 0));
+           float3 tangent = float3(
+               1 - d.x * d.x * (_Steepness * sin(f)),
+               d.x * (_Steepness * cos(f)),
+               -d.x * d.y * (_Steepness * sin(f))
+               );
+
+            float3 binormal = float3(
+                -d.x * d.y * (_Steepness * sin(f)),
+                d.y * (_Steepness * cos(f)),
+                1 - d.y * d.y * (_Steepness * sin(f))
+                );
+            float3 normal = normalize(cross(binormal, tangent));
             vertexData.normal = normal;
             vertexData.vertex.xyz = p;
         }
