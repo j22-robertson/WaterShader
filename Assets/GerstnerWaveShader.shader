@@ -8,7 +8,7 @@ Shader "Custom/GerstnerWaveShader"
         _Metallic("Metallic", Range(0,1)) = 0.0
         _Steepness("Steepness", Range(0.0,1.0)) = 0.5
         _WaveLength("Wavelength", Range(0.0,1.0)) = 0.5
-            _Speed("Speed", Range(0.0,1.0)) = 1
+        _Direction("Direction (2D)", Vector) = (1,0,0,0)
     }
     SubShader
     {
@@ -35,24 +35,28 @@ Shader "Custom/GerstnerWaveShader"
         fixed4 _Color;
         float _Steepness;
         float _WaveLength;
-        float _Speed;
+        float2 _Direction;
+       
 
         void vert(inout appdata_full vertexData) 
         {
             
             float wavelength = _WaveLength * 20;
-            float speed = _Speed;
+            
             float3 p = vertexData.vertex.xyz;
 
             
 
             float k = 2 * UNITY_PI / wavelength;
-            float f = k * (p.x - speed + _Time.y);
+            float c = sqrt(9.8 / k);
+            float2 d = normalize(_Direction);
+            float f = k * (dot(d,p.xz)- c + _Time.y);
             float a = _Steepness / k;
 
            
-            p.x += a*cos(f);
+            p.x += d.x*(a*cos(f));
             p.y = a * sin(f);
+            p.z += d.y * (a * cos(f));
             float3 tangent = normalize(float3(1-_Steepness * sin(f), _Steepness * cos(f), 0));
             float3 normal = float3(-tangent.y, tangent.x, 0);
             vertexData.normal = normal;
