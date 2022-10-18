@@ -6,9 +6,9 @@ Shader "Custom/GerstnerWaveShader"
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _Glossiness("Smoothness", Range(0,1)) = 0.5
         _Metallic("Metallic", Range(0,1)) = 0.0
-        _Steepness("Steepness", Range(0.0,1.0)) = 0.5
-        _WaveLength("Wavelength", Range(0.0,1.0)) = 0.5
-        _Direction("Direction (2D)", Vector) = (1,0,0,0)
+        _WaveA("Wave A (direction , steepness, wavelength)", Vector)=(1,0,0.5,10)
+        _WaveB("Wave B (direction , steepness, wavelength)", Vector) = (1,1,0.5,10)
+            _WaveC("Wave C (direction , steepness, wavelength)", Vector) = (0,1,0.5,10)
     }
     SubShader
     {
@@ -18,10 +18,9 @@ Shader "Custom/GerstnerWaveShader"
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
         #pragma surface surf Standard fullforwardshadows vertex:vert addshadow
-
+        #include "GerstnerWave.cginc"   
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
-
 
         sampler2D _MainTex;
 
@@ -33,42 +32,20 @@ Shader "Custom/GerstnerWaveShader"
         half _Glossiness;
         half _Metallic;
         fixed4 _Color;
-        float _Steepness;
-        float _WaveLength;
-        float2 _Direction;
+        float4 _WaveA;
+        float4 _WaveB;
+        float4 _WaveC;
        
 
         void vert(inout appdata_full vertexData) 
         {
-            
-            float wavelength = _WaveLength * 20;
-            
-            float3 p = vertexData.vertex.xyz;
-
-            
-
-            float k = 2 * UNITY_PI / wavelength;
-            float c = sqrt(9.8 / k);
-            float2 d = normalize(_Direction);
-            float f = k * (dot(d,p.xz)- c + _Time.y);
-            float a = _Steepness / k;
-
-           
-            p.x += d.x*(a*cos(f));
-            p.y = a * sin(f);
-            p.z += d.y * (a * cos(f));
-            //float3 tangent = normalize(float3(1-_Steepness * sin(f), _Steepness * cos(f), 0));
-           float3 tangent = float3(
-               1 - d.x * d.x * (_Steepness * sin(f)),
-               d.x * (_Steepness * cos(f)),
-               -d.x * d.y * (_Steepness * sin(f))
-               );
-
-            float3 binormal = float3(
-                -d.x * d.y * (_Steepness * sin(f)),
-                d.y * (_Steepness * cos(f)),
-                1 - d.y * d.y * (_Steepness * sin(f))
-                );
+            float3 gridPoint = vertexData.vertex.xyz;
+            float3 tangent = float3(1, 0, 0);
+            float3 binormal = float3(0, 0, 1);
+            float3 p = gridPoint;
+            p += GerstnerWave(_WaveA, gridPoint, tangent, binormal);
+            p += GerstnerWave(_WaveB, gridPoint, tangent, binormal);
+            p += GerstnerWave(_WaveC, gridPoint, tangent, binormal);
             float3 normal = normalize(cross(binormal, tangent));
             vertexData.normal = normal;
             vertexData.vertex.xyz = p;
