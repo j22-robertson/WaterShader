@@ -1,11 +1,13 @@
-Shader "Custom/Watershader"
+Shader "Custom/DistortionFlow"
 {
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
+        [NoScaleOffset] _FlowMap("Flow (RG, A noise)", 2D) = "black"{}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
+        
     }
     SubShader
     {
@@ -15,11 +17,10 @@ Shader "Custom/Watershader"
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
         #pragma surface surf Standard fullforwardshadows
-
+        #include "Flow.cginc"
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
-
-        sampler2D _MainTex;
+        sampler2D _MainTex, _FlowMap;
 
         struct Input
         {
@@ -39,10 +40,20 @@ Shader "Custom/Watershader"
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            // Albedo comes from a texture tinted by color
-            fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
+            //UVW XY = UV and Z = blend weight
+     
+            float2 flowVector = tex2D(_FlowMap, IN.uv_MainTex).rg * 2-1;
+
+            float noise = tex2D(_FlowMap, IN.uv_MainTex).a;
+            float time = _Time.y + noise;
+
+            float3 uvwA = FlowUVW(IN.uv_MainTex, flowVector, time, false); //original triangle wave
+            float3 uvwB = FlowUVW(IN.uv_MainTex, flowVector, time, true); //offset triangle wave
+          
+            fixed4 texA = tex2D(_MainTex, uvwA.xy) * uvwA.z;
+            fixed4 texB = tex2D(_MainTex, uvwB.xy) * uvwB.z;
+            fixed4 c = (texA + texB) * _Color;
             o.Albedo = c.rgb;
-            // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
             o.Alpha = c.a;
