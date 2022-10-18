@@ -5,6 +5,8 @@ Shader "Custom/DistortionFlow"
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         [NoScaleOffset] _FlowMap("Flow (RG, A noise)", 2D) = "black"{}
+        _UJump("U jump per phase", Range(-0.25, 0.25)) = 0.25
+        _VJump("V jump per phase", Range(-0.25, 0.25)) = 0.25
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
         
@@ -21,6 +23,7 @@ Shader "Custom/DistortionFlow"
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
         sampler2D _MainTex, _FlowMap;
+        float _UJump, _VJump;
 
         struct Input
         {
@@ -42,13 +45,13 @@ Shader "Custom/DistortionFlow"
         {
             //UVW XY = UV and Z = blend weight
      
-            float2 flowVector = tex2D(_FlowMap, IN.uv_MainTex).rg * 2-1;
-
+            float2 flowVector = tex2D(_FlowMap, IN.uv_MainTex).rg * 2 - 1;
             float noise = tex2D(_FlowMap, IN.uv_MainTex).a;
             float time = _Time.y + noise;
+            float jump = float2(_UJump, _VJump);
 
-            float3 uvwA = FlowUVW(IN.uv_MainTex, flowVector, time, false); //original triangle wave
-            float3 uvwB = FlowUVW(IN.uv_MainTex, flowVector, time, true); //offset triangle wave
+            float3 uvwA = FlowUVW(IN.uv_MainTex, flowVector,jump, time, false); //original triangle wave
+            float3 uvwB = FlowUVW(IN.uv_MainTex, flowVector,jump, time, true); //offset triangle wave
           
             fixed4 texA = tex2D(_MainTex, uvwA.xy) * uvwA.z;
             fixed4 texB = tex2D(_MainTex, uvwB.xy) * uvwB.z;
