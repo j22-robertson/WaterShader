@@ -78,7 +78,7 @@ Shader "Custom/GerstnerWaveShader"
 
             float3 UnpackDerivativeHeight(float4 textureData)
         {
-            float3 dh = textureData.agb;
+            float3 dh = textureData.rgb;
             dh.xy = dh.xy * 2 - 1;
             return dh;
         }
@@ -92,14 +92,13 @@ Shader "Custom/GerstnerWaveShader"
             float2 flowVector = tex2D(_FlowMap, IN.uv_MainTex).rg * 2 - 1;
             float noise = tex2D(_FlowMap, IN.uv_MainTex).a;
             float time = _Time.y * _Speed + noise;
-            float jump = float2(_UJump, _VJump);
            
 
-            float fHeightScale = length(flow.z * _HeightScaleModulated + _HeightScale);
+            float fHeightScale = length(flow) * _HeightScaleModulated + _HeightScale;
 
 
-            float3 uvwA = FlowUVW(IN.uv_MainTex, flow.xy,_FlowOffset,_Tiling, jump, time, false); //original triangle wave
-            float3 uvwB = FlowUVW(IN.uv_MainTex, flow.xy,_FlowOffset,_Tiling, jump, time, true); //offset triangle wave
+            float3 uvwA = FlowUVW(IN.uv_MainTex, flow.xy,_UJump,_FlowOffset, _Tiling, time, false); //original triangle wave
+            float3 uvwB = FlowUVW(IN.uv_MainTex, flow.xy,_VJump,_FlowOffset, _Tiling, time, true); //offset triangle wave
 
             float3 dhA = UnpackDerivativeHeight(tex2D(_DerivHeightMap, uvwA.xy)) * (uvwA.z * fHeightScale);
             float3 dhB = UnpackDerivativeHeight(tex2D(_DerivHeightMap, uvwB.xy)) * (uvwB.z * fHeightScale);

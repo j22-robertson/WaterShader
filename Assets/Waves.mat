@@ -23,6 +23,14 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _DerivHeightMap:
+        m_Texture: {fileID: 2800000, guid: b0a73e46ff3b237418fb33fc54195e97, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FlowMap:
+        m_Texture: {fileID: 2800000, guid: 82de0ee611da6ba4aa414eca4d0a85fe, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -30,10 +38,20 @@ Material:
     m_Ints: []
     m_Floats:
     - _Amplitude: 0.5
+    - _FlowOffset: 0
+    - _FlowStrength: 1
     - _Glossiness: 0.5
+    - _HeightScale: 0.25
+    - _HeightScaleModulated: 0.75
     - _Metallic: 0
-    - _Speed: 0.5
+    - _Speed: 0.15
+    - _Tiling: 5
+    - _UJump: 0.177
+    - _VJump: 0.068
     - _WaveLength: 0.5
     m_Colors:
-    - _Color: {r: 0.27153787, g: 0.6089176, b: 0.764151, a: 1}
+    - _Color: {r: 0.29178533, g: 0.7783025, b: 0.7830189, a: 1}
+    - _WaveA: {r: 1.16, g: 2.75, b: 0.8, a: 30}
+    - _WaveB: {r: 2.07, g: -1.05, b: 0.6, a: 15}
+    - _WaveC: {r: 1.21, g: 2.89, b: 0.3, a: 80}
   m_BuildTextureStacks: []
