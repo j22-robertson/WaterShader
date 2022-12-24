@@ -78,7 +78,7 @@ Shader "Custom/GerstnerWaveShader"
 
             float3 UnpackDerivativeHeight(float4 textureData)
         {
-            float3 dh = textureData.rgb;
+            float3 dh = textureData.agb;
             dh.xy = dh.xy * 2 - 1;
             return dh;
         }
