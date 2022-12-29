@@ -5,10 +5,10 @@ float3 GerstnerWave(float4 wave, float3 p, inout float3 tangent, inout float3 bi
 	float steepness = wave.z;
 	float wavelength = wave.w;
 	float k = 2 * UNITY_PI / wavelength;
-	float c = sqrt(9.8 / k);
-	float2 d = normalize(wave.xy);
-	float f = k * (dot(d, p.xz) - c * _Time.y);
-	float a = steepness / k;
+	float c = sqrt(9.8 / k); //gravity
+	float2 d = normalize(wave.xy); //direction
+	float f = k * (dot(d, p.xz) - c * _Time.y); //freq
+	float a = steepness / k; //amplitude
 
 
 	tangent += float3(

@@ -2,11 +2,12 @@ Shader "Custom/GerstnerWaveShader"
 {
     Properties
     {
-        _Color ("Color", Color) = (1,1,1,1)
+        _Color ("Color", Color) = (78, 131, 169)
         _MainTex ("Albedo (RGB)", 2D) = "white" {}
         _Glossiness("Smoothness", Range(0,1)) = 0.5
         _Metallic("Metallic", Range(0,1)) = 0.0
         [NoScaleOffset] _FlowMap("Flow (RG, A noise)", 2D) = "black"{}
+        
        
         [NoScaleoffset] _DerivHeightMap("Derviv (AG) Height(B)", 2D) = "Black"{}
         _UJump("U jump per phase", Range(-0.25, 0.25)) = 0.25
@@ -20,6 +21,7 @@ Shader "Custom/GerstnerWaveShader"
         _WaveA("Wave A (direction , steepness, wavelength)", Vector)=(1,0,0.5,10)
         _WaveB("Wave B (direction , steepness, wavelength)", Vector) = (1,1,0.5,10)
         _WaveC("Wave C (direction , steepness, wavelength)", Vector) = (0,1,0.5,10)
+        
     }
     SubShader
     {
@@ -47,6 +49,7 @@ Shader "Custom/GerstnerWaveShader"
         float4 _WaveA;
         float4 _WaveB;
         float4 _WaveC;
+        
         float _UJump;
         float _VJump;
         float _Tiling;
@@ -58,9 +61,10 @@ Shader "Custom/GerstnerWaveShader"
 
         void vert(inout appdata_full vertexData) 
         {
+            
             float3 gridPoint = vertexData.vertex.xyz;
-            float3 tangent = float3(1, 0, 0);
-            float3 binormal = float3(0, 0, 1);
+            float3 tangent = float3(0, 0, 0);
+            float3 binormal = float3(0, 0, 0);
             float3 p = gridPoint;
             p += GerstnerWave(_WaveA, gridPoint, tangent, binormal);
             p += GerstnerWave(_WaveB, gridPoint, tangent, binormal);
@@ -89,25 +93,28 @@ Shader "Custom/GerstnerWaveShader"
             float3 flow = tex2D(_FlowMap, IN.uv_MainTex).rgb;
             flow.xy = flow.xy * 2 - 1;
             flow *= _FlowStrength;
-            float2 flowVector = tex2D(_FlowMap, IN.uv_MainTex).rg * 2 - 1;
+
             float noise = tex2D(_FlowMap, IN.uv_MainTex).a;
             float time = _Time.y * _Speed + noise;
            
 
-            float fHeightScale = length(flow) * _HeightScaleModulated + _HeightScale;
+           
+            float2 jump = float2(_UJump, _VJump);
 
 
-            float3 uvwA = FlowUVW(IN.uv_MainTex, flow.xy,_UJump,_FlowOffset, _Tiling, time, false); //original triangle wave
-            float3 uvwB = FlowUVW(IN.uv_MainTex, flow.xy,_VJump,_FlowOffset, _Tiling, time, true); //offset triangle wave
-
-            float3 dhA = UnpackDerivativeHeight(tex2D(_DerivHeightMap, uvwA.xy)) * (uvwA.z * fHeightScale);
-            float3 dhB = UnpackDerivativeHeight(tex2D(_DerivHeightMap, uvwB.xy)) * (uvwB.z * fHeightScale);
+            float3 uvwA = FlowUVW(IN.uv_MainTex, flow.xy,jump,_FlowOffset, _Tiling, time, false); //original triangle wave
+            float3 uvwB = FlowUVW(IN.uv_MainTex, flow.xy,jump,_FlowOffset, _Tiling, time, true); //offset triangle wave
+            
+            
             
 
             fixed4 texA = tex2D(_MainTex, uvwA.xy) * uvwA.z;
             fixed4 texB = tex2D(_MainTex, uvwB.xy) * uvwB.z;
             fixed4 c = (texA + texB) * _Color;
-
+            
+            float fHeightScale = flow.z * _HeightScaleModulated + _HeightScale;
+            float3 dhA = UnpackDerivativeHeight(tex2D(_DerivHeightMap, uvwA.xy)) * (uvwA.z * fHeightScale);
+            float3 dhB = UnpackDerivativeHeight(tex2D(_DerivHeightMap, uvwB.xy)) * (uvwB.z * fHeightScale);
             o.Normal = normalize(float3(-(dhA.xy + dhB.xy),1));
             //o.Albedo = pow(dhA.z + dhB.z,2);
             o.Albedo = c.rgb;
