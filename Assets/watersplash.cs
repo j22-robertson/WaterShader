@@ -22,9 +22,9 @@ public class watersplash : MonoBehaviour
             var emitparams = new ParticleSystem.EmitParams();
             emitparams.applyShapeToPosition = true;
             emitparams.position = _collider.ClosestPointOnBounds(other.attachedRigidbody.position) + (Vector3.down*6);
-
-
+            emitparams.velocity =  Vector3.up *other.GetComponent<Rigidbody>().velocity.magnitude;
             SplashParticles.Emit(emitparams, 100);
+            
             //SplashParticles.Play();
             //SplashParticles.Pause();
         }
