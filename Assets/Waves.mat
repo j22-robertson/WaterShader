@@ -45,8 +45,8 @@ Material:
     - _HeightScaleModulated: 0.5
     - _Metallic: 0
     - _Speed: 0.1
-    - _Tiling: 1
-    - _UJump: -0.183
+    - _Tiling: 32
+    - _UJump: -0.188
     - _VJump: 0.033
     - _WaveLength: 0.5
     m_Colors:
