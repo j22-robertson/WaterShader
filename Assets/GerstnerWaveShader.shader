@@ -97,17 +97,11 @@ Shader "Custom/GerstnerWaveShader"
             float noise = tex2D(_FlowMap, IN.uv_MainTex).a;
             float time = _Time.y * _Speed + noise;
            
-
-           
             float2 jump = float2(_UJump, _VJump);
-
 
             float3 uvwA = FlowUVW(IN.uv_MainTex, flow.xy,jump,_FlowOffset, _Tiling, time, false); //original triangle wave
             float3 uvwB = FlowUVW(IN.uv_MainTex, flow.xy,jump,_FlowOffset, _Tiling, time, true); //offset triangle wave
             
-            
-            
-
             fixed4 texA = tex2D(_MainTex, uvwA.xy) * uvwA.z;
             fixed4 texB = tex2D(_MainTex, uvwB.xy) * uvwB.z;
             fixed4 c = (texA + texB) * _Color;
