@@ -25,22 +25,23 @@ Shader "Custom/GerstnerWaveShader"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque"}
+        Tags { "RenderType"="Transparent" "Queue" = "Transparent"}
         LOD 200
 
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows vertex:vert addshadow
+        #pragma surface surf Standard alpha vertex:vert addshadow
         #include "GerstnerWave.cginc"
         #include "Flow.cginc"
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
 
-        sampler2D _MainTex, _FlowMap, _DerivHeightMap;
+        sampler2D _MainTex, _FlowMap, _DerivHeightMap, _CameraDepthTexture;
 
         struct Input
         {
             float2 uv_MainTex;
+            float4 screenPos;
         };
 
         half _Glossiness;
@@ -58,10 +59,11 @@ Shader "Custom/GerstnerWaveShader"
         float _FlowStrength;
         float _HeightScale;
         float _HeightScaleModulated;
+        float4 _CameraDepthTexture_TexelSize;
 
         void vert(inout appdata_full vertexData) 
         {
-            
+            /*
             float3 gridPoint = vertexData.vertex.xyz;
             float3 tangent = float3(0, 0, 0);
             float3 binormal = float3(0, 0, 0);
@@ -72,6 +74,7 @@ Shader "Custom/GerstnerWaveShader"
             float3 normal = normalize(cross(binormal, tangent));
             vertexData.normal = normal;
             vertexData.vertex.xyz = p;
+            */
         }
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
@@ -89,6 +92,18 @@ Shader "Custom/GerstnerWaveShader"
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
+            float2 screen_uv = IN.screenPos.xy/IN.screenPos.w;
+            #if UNITY_UV_STARTS_AT_TOP
+            if(_CameraDepthTexture_TexelSize.y < 0)
+            {
+                screen_uv.y = 1 - screen_uv.y;
+            }
+            #endif
+            
+            float depth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, screen_uv));
+            float surface = UNITY_Z_0_FAR_FROM_CLIPSPACE(IN.screenPos.z);
+            float depthDifference = depth - surface;
+            
             // Albedo comes from a texture tinted by color
             float3 flow = tex2D(_FlowMap, IN.uv_MainTex).rgb;
             flow.xy = flow.xy * 2 - 1;
@@ -111,7 +126,7 @@ Shader "Custom/GerstnerWaveShader"
             float3 dhB = UnpackDerivativeHeight(tex2D(_DerivHeightMap, uvwB.xy)) * (uvwB.z * fHeightScale);
             o.Normal = normalize(float3(-(dhA.xy + dhB.xy),1));
             //o.Albedo = pow(dhA.z + dhB.z,2);
-            o.Albedo = c.rgb;
+            o.Albedo = depthDifference/20;
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
