@@ -8,15 +8,28 @@ using Random = UnityEngine.Random;
 public class water_manager : MonoBehaviour
 {
     // Start is called before the first frame update
+    
     [SerializeField] private ParticleSystem SplashParticles;
     [SerializeField] private BoxCollider _collider;
-
+    [Header("Ripple controls")]
+    [SerializeField] private float flowspeed;
+    [SerializeField] private float flowOffset;
+    [SerializeField] private float rippleHeight;
+    [SerializeField] private float _Tiling = 1;
+    [Header("Fog controls")]
+    [SerializeField] private float fogginess;
+    [SerializeField] private Color fogcolor;
+    [SerializeField] private Color watercolor;
+    
+    
+    [Header("Gerstner wave controls")]
     [SerializeField] private Vector4 WaveA;
     [SerializeField] private Vector4 WaveB;
     [SerializeField] private Vector4 WaveC;
     private MeshRenderer _meshRenderer;
 
-    [SerializeField] private float _Tiling = 1;
+
+
     //[SerializeField] private float Speed = 1;
     void Start()
     {
@@ -48,5 +61,11 @@ public class water_manager : MonoBehaviour
         _meshRenderer.material.SetVector("_WaveA", WaveA);
         _meshRenderer.material.SetVector("_WaveB", WaveB);
         _meshRenderer.material.SetVector("_WaveC", WaveC);
+        _meshRenderer.material.SetFloat("_Speed", flowspeed);
+        _meshRenderer.material.SetFloat("_FlowOffset", flowOffset);
+        _meshRenderer.material.SetFloat("_HeightScale", rippleHeight);
+        _meshRenderer.material.SetFloat("_FogDensity", fogginess);
+        //_meshRenderer.material.SetColor("_Color", watercolor);
+        _meshRenderer.material.SetColor("_FogColor", fogcolor);
     }
 }
